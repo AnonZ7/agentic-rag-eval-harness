@@ -22,3 +22,7 @@ jobs:
         run: pytest -q
       - name: Evaluation gate (fails build if metrics regress)
         run: python -m evals.run_evals
+      - name: Supply-chain audit (non-blocking)
+        run: |
+          pip install pip-audit
+          pip-audit || true
