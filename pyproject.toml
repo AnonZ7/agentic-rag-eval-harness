@@ -1,0 +1,53 @@
+[project]
+name = "agentic-rag-eval-harness"
+version = "0.1.0"
+description = "Production-shaped agentic RAG service: LangGraph agent + hybrid retrieval + guardrails + an evaluation harness (faithfulness, answer-relevance, retrieval precision/recall). Runs offline in CI; provider-agnostic (Anthropic / OpenAI / Gemini) in production."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Zakaria Aichaoui" }]
+keywords = ["agentic-ai", "rag", "llm-evals", "langgraph", "guardrails", "fastapi", "llmops"]
+
+dependencies = [
+  "langgraph>=0.2.0",
+  "langchain-core>=0.3.0",
+  "rank-bm25>=0.2.2",
+  "numpy>=1.26",
+  "fastapi>=0.115",
+  "uvicorn>=0.30",
+  "pydantic>=2.7",
+  "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+# Real LLM providers — only needed to run in "live" mode (offline mode needs none of these).
+providers = [
+  "anthropic>=0.40",
+  "openai>=1.50",
+  "google-genai>=0.3",
+]
+# Full eval stack — Ragas/DeepEval for LLM-judged metrics (offline metrics need neither).
+evals = [
+  "ragas>=0.2.0",
+  "deepeval>=1.0.0",
+  "datasets>=2.20",
+]
+dev = ["pytest>=8.0", "ruff>=0.6", "httpx>=0.27"]
+
+[project.scripts]
+arch-evals = "evals.run_evals:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["tests"]
