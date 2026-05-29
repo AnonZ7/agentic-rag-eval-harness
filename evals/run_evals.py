@@ -17,7 +17,6 @@ Run:  python -m evals.run_evals        (offline)
 from __future__ import annotations
 
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -55,7 +54,9 @@ def run_offline() -> dict:
     rows = load()
     prec_list, rec_list, ground_list, f1_list = [], [], [], []
 
-    print(f"\n  Running OFFLINE eval on {len(rows)} cases (provider={os.getenv('LLM_PROVIDER', 'fake')})\n")
+    from agentic_rag.config import settings  # validated, allowlisted provider (no tainted env->log)
+
+    print(f"\n  Running OFFLINE eval on {len(rows)} cases (provider={settings.provider})\n")
     for r in rows:
         hits = retriever.retrieve(r["question"])
         got = {c.source for c in hits}

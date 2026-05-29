@@ -13,8 +13,16 @@ from .config import settings
 from .retriever import grounding_score
 
 _INJECTION = re.compile(
-    r"(ignore (all )?previous|disregard (the )?(above|instructions)|"
-    r"you are now|system prompt|reveal your (system )?prompt|jailbreak)",
+    r"("
+    r"ignore (all )?(previous|prior|above)|"
+    r"disregard (the )?(above|prior|previous|instructions)|"
+    r"forget (everything|all|previous|prior)|"
+    r"you are now|act as (a|an|if|though)|developer mode|do anything now|\bDAN\b|"
+    r"new instructions\s*:|override (the )?(system|instructions|guardrails|rules)|"
+    r"system prompt|reveal (your|the) (system )?(prompt|instructions)|"
+    r"print (your|the) (system )?(prompt|instructions)|repeat (the|everything) above|"
+    r"jailbreak"
+    r")",
     re.I,
 )
 _PII = re.compile(

@@ -9,8 +9,8 @@ authors = [{ name = "Zakaria Aichaoui" }]
 keywords = ["agentic-ai", "rag", "llm-evals", "langgraph", "guardrails", "fastapi", "llmops"]
 
 dependencies = [
-  "langgraph>=0.2.0",
-  "langchain-core>=0.3.0",
+  "langgraph>=1.0,<2",
+  "langchain-core>=1.0,<2",
   "rank-bm25>=0.2.2",
   "numpy>=1.26",
   "fastapi>=0.115",

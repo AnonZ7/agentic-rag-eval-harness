@@ -45,7 +45,9 @@ class HashEmbedder:
     def embed(self, text: str) -> np.ndarray:
         v = np.zeros(self.dim, dtype=np.float32)
         for tok in _tok(text):
-            h = int(hashlib.md5(tok.encode()).hexdigest(), 16)
+            # blake2b: fast, stable across runs (unlike built-in hash with PYTHONHASHSEED),
+            # and not a weak-crypto primitive. Used only for feature bucketing, not security.
+            h = int.from_bytes(hashlib.blake2b(tok.encode(), digest_size=8).digest(), "big")
             v[h % self.dim] += 1.0
         n = np.linalg.norm(v)
         return v / n if n else v
@@ -77,10 +79,16 @@ class HybridRetriever:
     @classmethod
     def from_dir(cls, docs_dir: str | None = None) -> "HybridRetriever":
         docs_dir = docs_dir or settings.docs_dir
+        root = os.path.realpath(docs_dir)
         chunks: list[Chunk] = []
         for path in sorted(glob.glob(os.path.join(docs_dir, "**", "*.md"), recursive=True)):
-            with open(path, encoding="utf-8") as f:
-                chunks += _chunk_markdown(f.read(), os.path.basename(path))
+            # path-traversal guard: only read files that resolve INSIDE the docs root
+            # (defends against symlinks / crafted docs_dir escaping the corpus).
+            real = os.path.realpath(path)
+            if os.path.commonpath([root, real]) != root:
+                continue
+            with open(real, encoding="utf-8") as f:
+                chunks += _chunk_markdown(f.read(), os.path.basename(real))
         return cls(chunks)
 
     def retrieve(self, query: str, top_k: int | None = None) -> list[Chunk]:

@@ -9,11 +9,21 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+VALID_PROVIDERS = ("fake", "anthropic", "openai", "gemini")
+
+
+def _validated_provider() -> str:
+    """Coerce LLM_PROVIDER to a known value (defaults to 'fake'). An allowlist here both
+    hardens config and removes the tainted env->log path (unknown values never reach output)."""
+    p = os.getenv("LLM_PROVIDER", "fake").strip().lower()
+    return p if p in VALID_PROVIDERS else "fake"
+
+
 @dataclass(frozen=True)
 class Settings:
     # Provider: "fake" (offline, deterministic), "anthropic", "openai", or "gemini".
     # Defaults to "fake" so the repo runs with zero secrets — flip via LLM_PROVIDER.
-    provider: str = os.getenv("LLM_PROVIDER", "fake")
+    provider: str = _validated_provider()
     model: str = os.getenv("LLM_MODEL", "claude-sonnet-4-5")
 
     # Retrieval

@@ -63,6 +63,27 @@ provider-agnostic client in [`llm.py`](src/agentic_rag/llm.py).
 | [`evals/run_evals.py`](evals/run_evals.py) | Offline metric gate + optional Ragas |
 | [`evals/metrics.md`](evals/metrics.md) | What each metric means and why |
 
+## Security
+
+The LLM is treated as **untrusted by design** — defenses live around it, not just in the prompt.
+Full threat model + OWASP-LLM-Top-10 mapping in [SECURITY.md](SECURITY.md).
+
+- **Input guardrails** — length caps + prompt-injection/jailbreak pattern detection.
+- **Output guardrails** — PII redaction + a **grounding floor** that refuses rather than hallucinates.
+- **Corpus isolation** — path-traversal guard; only files inside the docs root are ever read.
+- **API hardening** — closed CORS by default, in-process rate limiting, leak-free error handler.
+- **Bounded loops** — the verify→refine step runs at most once (no runaway agent consumption).
+
+Verified with a SAST pass (foxguard): weak-crypto and log-injection findings remediated; the one
+remaining `open()` flag is a documented false positive (mitigated by the `commonpath` containment guard).
+
+## Tested & verified
+
+- **19 tests** (retriever, guardrails, agent, API, config) — `pytest -q`
+- **Eval gate** — fails CI if retrieval recall / grounding / answer-F1 regress
+- **Ruff** clean · **CI** runs all three on every push
+- LangGraph **1.x** / LangChain-core **1.x** (current majors)
+
 ## Design decisions
 
 - **Offline-first CI.** A deterministic `FakeLLM` + hashing embedder make the test/eval path
