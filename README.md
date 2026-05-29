@@ -96,7 +96,3 @@ remaining `open()` flag is a documented false positive (mitigated by the `common
 ## License
 
 MIT — see [LICENSE](LICENSE).
-
----
-Built by **Zakaria Aichaoui** — Applied AI / Agent Engineer (Algiers, remote). Part of an
-ongoing portfolio of agentic-systems work.

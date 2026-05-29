@@ -5,7 +5,7 @@ description = "Production-shaped agentic RAG service: LangGraph agent + hybrid r
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "Zakaria Aichaoui" }]
+authors = [{ name = "AnonZ7" }]
 keywords = ["agentic-ai", "rag", "llm-evals", "langgraph", "guardrails", "fastapi", "llmops"]
 
 dependencies = [
