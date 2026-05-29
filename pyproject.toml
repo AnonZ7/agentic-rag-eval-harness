@@ -32,6 +32,10 @@ evals = [
   "deepeval>=1.0.0",
   "datasets>=2.20",
 ]
+# Real semantic embeddings (opt-in: RAG_EMBEDDER=st). Heavy (pulls torch) — not in the default path.
+embedder = [
+  "sentence-transformers>=3.0",
+]
 dev = ["pytest>=8.0", "ruff>=0.6", "httpx>=0.27"]
 
 [project.scripts]

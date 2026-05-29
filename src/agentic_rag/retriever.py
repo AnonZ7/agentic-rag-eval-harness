@@ -53,6 +53,31 @@ class HashEmbedder:
         return v / n if n else v
 
 
+class SentenceTransformerEmbedder:
+    """Real semantic embeddings via sentence-transformers (opt-in: RAG_EMBEDDER=st +
+    `pip install .[embedder]`). Falls back is handled by make_embedder(), not here."""
+
+    def __init__(self, model_name: str):
+        from sentence_transformers import SentenceTransformer  # lazy: heavy import
+
+        self._model = SentenceTransformer(model_name)
+        self.dim = self._model.get_sentence_embedding_dimension()
+
+    def embed(self, text: str) -> np.ndarray:
+        return self._model.encode(text, normalize_embeddings=True).astype(np.float32)
+
+
+def make_embedder():
+    """Pick the embedder from config. Defaults to the offline HashEmbedder; only loads the
+    heavy sentence-transformers path when explicitly requested AND importable."""
+    if settings.embedder == "st":
+        try:
+            return SentenceTransformerEmbedder(settings.st_model)
+        except Exception:  # noqa: BLE001 — missing dep / download failure -> graceful fallback
+            pass
+    return HashEmbedder(settings.embed_dim)
+
+
 def _chunk_markdown(text: str, source: str, size: int = 90) -> list[Chunk]:
     """Split on paragraphs, then pack into ~`size`-word chunks (cheap, sane defaults)."""
     paras = [p.strip() for p in text.split("\n\n") if p.strip()]
@@ -68,11 +93,11 @@ def _chunk_markdown(text: str, source: str, size: int = 90) -> list[Chunk]:
 
 
 class HybridRetriever:
-    def __init__(self, chunks: list[Chunk], embedder: HashEmbedder | None = None):
+    def __init__(self, chunks: list[Chunk], embedder=None):
         if not chunks:
             raise ValueError("HybridRetriever needs at least one chunk")
         self.chunks = chunks
-        self.embedder = embedder or HashEmbedder(settings.embed_dim)
+        self.embedder = embedder or make_embedder()
         self._bm25 = BM25Okapi([_tok(c.text) for c in chunks])
         self._emb = np.vstack([self.embedder.embed(c.text) for c in chunks])
 

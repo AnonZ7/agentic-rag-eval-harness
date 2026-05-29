@@ -30,6 +30,10 @@ class Settings:
     top_k: int = int(os.getenv("RAG_TOP_K", "4"))
     rrf_k: int = int(os.getenv("RAG_RRF_K", "60"))  # reciprocal-rank-fusion constant
     embed_dim: int = int(os.getenv("RAG_EMBED_DIM", "256"))
+    # Embedder: "hash" (offline, deterministic, no deps) or "st" (sentence-transformers,
+    # real semantics, needs `pip install .[embedder]`). Defaults to hash so CI stays hermetic.
+    embedder: str = os.getenv("RAG_EMBEDDER", "hash")
+    st_model: str = os.getenv("RAG_ST_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
 
     # Guardrails
     max_question_chars: int = int(os.getenv("GUARD_MAX_Q", "2000"))
